@@ -66,12 +66,20 @@ def save_block(block: dict):
         conn.commit()
 
 
+def _row_to_block(row: dict) -> dict:
+    block = dict(row)
+    block["index"] = block.pop("block_index")
+    block.pop("id", None)
+    block["timestamp"] = float(block["timestamp"])
+    return block
+
+
 def load_chain() -> list:
     with get_connection() as conn:
         with conn.cursor() as cur:
             cur.execute("SELECT * FROM blocks ORDER BY block_index ASC")
             rows = cur.fetchall()
-    return [dict(r) | {"transactions": r["transactions"]} for r in rows]
+    return [_row_to_block(dict(r)) for r in rows]
 
 
 def save_utxos(tx_id: str, outputs: list):

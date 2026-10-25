@@ -199,9 +199,13 @@ GET http://localhost:5001/wallet/new
 
 ### Passo 2 — Minerar o primeiro bloco (Alice recebe 50 moedas)
 
+Passe o endereço de Alice como parâmetro para que a recompensa vá para a carteira dela:
+
 ```
-GET http://localhost:5001/mine
+GET http://localhost:5001/mine?address=1a7f3c9d2e4b8a1f6c0d5e2b9a3f7c1d4e8b2a5f
 ```
+
+> ⚠️ Substitua o endereço pelo `address` que você recebeu no Passo 1.
 
 **Resposta:**
 ```json
@@ -213,13 +217,14 @@ GET http://localhost:5001/mine
   "nonce": 38291,
   "merkle_root": "d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3",
   "transactions": 1,
-  "miner_reward": 50.0
+  "miner_reward": 50.0,
+  "miner_address": "1a7f3c9d2e4b8a1f6c0d5e2b9a3f7c1d4e8b2a5f"
 }
 ```
 
 > O nó trabalhou para encontrar um hash que começa com `0000` (4 zeros = dificuldade 4).
 > Isso é o **Proof of Work** — prova que trabalho computacional foi feito.
-> Como recompensa, **50 moedas foram creditadas** ao endereço do minerador do nó.
+> Como recompensa, **50 moedas foram creditadas** ao endereço de Alice.
 
 ---
 
@@ -321,7 +326,7 @@ Content-Type: application/json
 ### Passo 6 — Minerar o bloco com a transação
 
 ```
-GET http://localhost:5001/mine
+GET http://localhost:5001/mine?address=1a7f3c9d2e4b8a1f6c0d5e2b9a3f7c1d4e8b2a5f
 ```
 
 **Resposta:**
@@ -379,7 +384,7 @@ GET http://localhost:5001/balance/1a7f3c9d2e4b8a1f6c0d5e2b9a3f7c1d4e8b2a5f
 | Método | Endpoint | O que faz |
 |---|---|---|
 | GET | `/wallet/new` | Cria uma nova carteira |
-| GET | `/mine` | Minera um novo bloco |
+| GET | `/mine?address=<carteira>` | Minera um novo bloco e credita a recompensa ao endereço informado |
 | GET | `/chain` | Retorna toda a blockchain |
 | GET | `/validate` | Verifica se a cadeia é válida |
 | POST | `/transaction/new` | Cria uma nova transação |
@@ -409,8 +414,17 @@ Gera um novo par de chaves criptográficas e um endereço.
 
 ### Mineração
 
-#### `GET /mine`
-Minera um novo bloco. Inclui todas as transações do mempool e gera automaticamente a recompensa de 50 moedas para o minerador.
+#### `GET /mine?address=<carteira>`
+Minera um novo bloco. Inclui todas as transações do mempool e gera automaticamente a recompensa de 50 moedas para o endereço informado.
+
+| Parâmetro | Obrigatório | Descrição |
+|---|---|---|
+| `address` | Não | Endereço da carteira que receberá as 50 moedas. Se omitido, usa o endereço padrão do nó. |
+
+**Exemplo:**
+```
+GET http://localhost:5001/mine?address=1a7f3c9d2e4b8a1f6c0d5e2b9a3f7c1d4e8b2a5f
+```
 
 **Resposta `200`**
 ```json
@@ -422,7 +436,8 @@ Minera um novo bloco. Inclui todas as transações do mempool e gera automaticam
   "nonce": 38291,
   "merkle_root": "d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3",
   "transactions": 1,
-  "miner_reward": 50.0
+  "miner_reward": 50.0,
+  "miner_address": "1a7f3c9d2e4b8a1f6c0d5e2b9a3f7c1d4e8b2a5f"
 }
 ```
 

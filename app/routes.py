@@ -27,9 +27,12 @@ def _get_chain() -> list:
 
 @router.route("/mine", methods=["GET"])
 def mine():
+    # Aceita ?address=<carteira> para direcionar a recompensa; usa MINER_ADDRESS como fallback
+    miner_address = request.args.get("address", MINER_ADDRESS)
+
     chain = _get_chain()
     difficulty = bc.calculate_difficulty(chain)
-    coinbase = create_coinbase_tx(MINER_ADDRESS, chain[-1]["index"] + 1)
+    coinbase = create_coinbase_tx(miner_address, chain[-1]["index"] + 1)
     transactions = [coinbase] + mempool[:]
 
     block = bc.create_block(chain[-1], transactions, difficulty)
@@ -51,6 +54,7 @@ def mine():
         "merkle_root": block["merkle_root"],
         "transactions": len(block["transactions"]),
         "miner_reward": 50.0,
+        "miner_address": miner_address,
     }), 200
 
 
