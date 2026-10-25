@@ -1,0 +1,71 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: bitcoin_db
+    environment:
+      POSTGRES_USER: bitcoin
+      POSTGRES_PASSWORD: bitcoin
+      POSTGRES_DB: bitcoindb
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bitcoin -d bitcoindb"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - bitcoin_net
+
+  node1:
+    build: .
+    container_name: bitcoin_node1
+    environment:
+      DATABASE_URL: postgresql://bitcoin:bitcoin@db:5432/bitcoindb
+      PORT: 5001
+      MINER_ADDRESS: node1_miner
+    ports:
+      - "5001:5001"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - bitcoin_net
+
+  node2:
+    build: .
+    container_name: bitcoin_node2
+    environment:
+      DATABASE_URL: postgresql://bitcoin:bitcoin@db:5432/bitcoindb
+      PORT: 5002
+      MINER_ADDRESS: node2_miner
+    ports:
+      - "5002:5002"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - bitcoin_net
+
+  node3:
+    build: .
+    container_name: bitcoin_node3
+    environment:
+      DATABASE_URL: postgresql://bitcoin:bitcoin@db:5432/bitcoindb
+      PORT: 5003
+      MINER_ADDRESS: node3_miner
+    ports:
+      - "5003:5003"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - bitcoin_net
+
+volumes:
+  pgdata:
+
+networks:
+  bitcoin_net:
+    driver: bridge
